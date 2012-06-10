@@ -1,0 +1,13 @@
+L2Parser v1.0 by DETH
+---------------------
+
+L2Parser reads decrypted Lineage II data files and stores them in XML format.
+
+* Installation:
+Compile the project, then add l2encdec.exe and it's dependencies to the compiled binary directory.
+
+* How to use:
+Place all the encrypted data files you want to parse in the original/ directory.
+Run L2Parser.exe and wait for the results.
+
+The XML files are stored in the parsed/ directory.

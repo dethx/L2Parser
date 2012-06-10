@@ -1,0 +1,4 @@
+
+*.suo
+/L2Parser/obj
+/L2Parser/bin
