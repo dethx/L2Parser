@@ -9,7 +9,9 @@ namespace L2Parser.Structures
 {
     public class ItemName : IStructure
     {
-        public List<ItemData> Data { get; set; } // foreach: uint data
+        public static readonly string[] DataFiles = new string[] { "itemname-e" };
+
+        public ItemData[] Data { get; set; }
 
         public class ItemData
         {
@@ -20,8 +22,7 @@ namespace L2Parser.Structures
             [XmlAttribute]
             public string AdditionalName { get; set; }
             public string Description { get; set; }
-            [XmlIgnore]
-            public int? Popup { get; set; }
+            public int Popup { get; set; }
             public uint[][] Class { get; set; }
             [XmlArray]
             [XmlArrayItem("SetEffect1")]
@@ -30,27 +31,18 @@ namespace L2Parser.Structures
             [XmlArray]
             [XmlArrayItem("SetEffect3")]
             public string[] SetId3 { get; set; }
-            [XmlIgnore]
-            public uint? Unknown1 { get; set; }
-            [XmlIgnore]
-            public uint? Unknown2 { get; set; }
-            [XmlIgnore]
-            public uint? SetEnchantCount { get; set; }
+            public uint Unknown1 { get; set; }
+            public uint Unknown2 { get; set; }
+            public uint SetEnchantCount { get; set; }
             public string SetEnchantEffect { get; set; }
-            [XmlIgnore]
-            public uint? Color { get; set; }
+            public uint Color { get; set; }
 
-            // used for serializing nullable types
-            [XmlAttribute("Popup")]
-            internal int PopupValue { get { return Popup.Value; } set { Popup = value; } }
-            [XmlAttribute("Unknown1")]
-            internal uint Unknown1Value { get { return Unknown1.Value; } set { Unknown1 = value; } }
-            [XmlAttribute("Unknown2")]
-            internal uint Unknown2Value { get { return Unknown2.Value; } set { Unknown2 = value; } }
-            [XmlAttribute("SetEnchantCount")]
-            internal uint SetEnchantCountValue { get { return SetEnchantCount.Value; } set { SetEnchantCount = value; } }
-            [XmlAttribute("Color")]
-            internal uint ColorValue { get { return Color.Value; } set { Color = value; } }
+            // do not serialize default values
+            public bool ShouldSerializePopup() { return Popup != -1; }
+            public bool ShouldSerializeUnknown1() { return Unknown1 != 0; }
+            public bool ShouldSerializeUnknown2() { return Unknown2 != 0; }
+            public bool ShouldSerializeSetEnchantCount() { return SetEnchantCount != 0; }
+            public bool ShouldSerializeColor() { return Color != 0; }
         }
 
         internal ItemName()
@@ -60,30 +52,33 @@ namespace L2Parser.Structures
         {
             using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
             {
-                Data = new List<ItemData>(reader.ReadInt32());
-                for (uint i = 0; i < Data.Capacity; i++)
+                Data = new ItemData[reader.ReadInt32()];
+                for (uint i = 0; i < Data.Length; i++)
                 {
-                    ItemData item = new ItemData();
+                    ItemData data = new ItemData();
 
-                    item.Id = reader.ReadUInt32();
-                    item.Name = reader.ReadUString();
-                    item.AdditionalName = reader.ReadUString();
-                    item.Description = reader.ReadString();
-                    item.Popup = reader.ReadInt32();
-                    item.Class = reader.ReadTable<uint>(reader.ReadUInt32);
-                    item.SetId1 = reader.ReadArray<string>(reader.ReadString);
-                    item.SetId2 = reader.ReadTable<uint>(reader.ReadUInt32);
-                    item.SetId3 = reader.ReadArray<string>(reader.ReadString);
-                    item.Unknown1 = reader.ReadUInt32();
-                    item.Unknown2 = reader.ReadUInt32();
-                    item.SetEnchantCount = reader.ReadUInt32();
-                    item.SetEnchantEffect = reader.ReadString();
-                    item.Color = reader.ReadUInt32();
+                    data.Id = reader.ReadUInt32();
+                    data.Name = reader.ReadUString();
+                    data.AdditionalName = reader.ReadUString();
+                    data.Description = reader.ReadString();
+                    data.Popup = reader.ReadInt32();
+                    data.Class = reader.ReadTable<uint>(reader.ReadUInt32);
+                    data.SetId1 = reader.ReadArray<string>(reader.ReadString);
+                    data.SetId2 = reader.ReadTable<uint>(reader.ReadUInt32);
+                    data.SetId3 = reader.ReadArray<string>(reader.ReadString);
+                    data.Unknown1 = reader.ReadUInt32();
+                    data.Unknown2 = reader.ReadUInt32();
+                    data.SetEnchantCount = reader.ReadUInt32();
+                    data.SetEnchantEffect = reader.ReadString();
+                    data.Color = reader.ReadUInt32();
 
-                    // set default values to null
-                    if (item.Popup == -1) { item.Popup = null; }
+                    Data[i] = data;
+                }
 
-                    Data.Add(item);
+                if (reader.ReadString() != "SafePackage")
+                {
+                    Data = null;
+                    throw new InvalidDataException("Parsing failed.");
                 }
             }
         }

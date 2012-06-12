@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Structures\SkillName.cs" />
     <Compile Include="Structures\IStructure.cs" />
     <Compile Include="IO\L2BinaryReader.cs" />
     <Compile Include="Structures\ItemName.cs" />

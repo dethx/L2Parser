@@ -12,7 +12,9 @@ namespace L2Parser
             Console.WriteLine("Loading parser...");
             try
             {
-                foreach (string file in Parser.GetFiles())
+                string[] files = Parser.GetFiles();
+                Console.WriteLine("Found {0} files...", files.Length);
+                foreach (string file in files)
                 {
                     Console.WriteLine("Decrypting {0}...", Path.GetFileName(file));
                     try
@@ -34,11 +36,10 @@ namespace L2Parser
                     }
                 }
             }
-            catch (Exception e)
+            catch (FieldAccessException e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e);
             }
-            Console.WriteLine("Done.");
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();

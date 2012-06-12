@@ -5,6 +5,7 @@ using System.IO;
 using System.Diagnostics;
 using L2Parser.Structures;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace L2Parser
 {
@@ -15,6 +16,7 @@ namespace L2Parser
         public const string ParsedDirectory = "parsed";
 
         private static ProcessStartInfo _psi;
+        private static Dictionary<string, Type> _structures;
 
         static Parser()
         {
@@ -22,6 +24,23 @@ namespace L2Parser
             _psi.FileName = "l2encdec.exe";
             _psi.CreateNoWindow = true;
             _psi.UseShellExecute = false;
+
+            // load all known structures
+            _structures = new Dictionary<string, Type>();
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (!type.IsInterface && (type.Namespace == "L2Parser.Structures"))
+                {
+                    FieldInfo field = type.GetField("DataFiles", BindingFlags.Public | BindingFlags.Static);
+                    if (field != null)
+                    {
+                        foreach (string file in (field.GetValue(null) as string[]))
+                        {
+                            _structures.Add(file, type);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -32,7 +51,6 @@ namespace L2Parser
         {
             if (!Directory.Exists(OriginalDirectory))
             {
-                //throw new DirectoryNotFoundException("original/ directory does not exist.");
                 Directory.CreateDirectory(OriginalDirectory);
             }
 
@@ -84,21 +102,21 @@ namespace L2Parser
             if (!Directory.Exists(ParsedDirectory))
             {
                 Directory.CreateDirectory(ParsedDirectory);
-                //throw new DirectoryNotFoundException(String.Format("{0}/ directory does not exist.", DecryptedDirectory));
             }
 
             IStructure structure;
-            string type = Path.GetFileNameWithoutExtension(file);
-            switch (type.ToLower())
+            Type type;
+            string typeName = Path.GetFileNameWithoutExtension(file);
+            if (_structures.TryGetValue(typeName.ToLower(), out type))
             {
-                case "itemname-e":
-                    structure = new ItemName(file);
-                    break;
-                default:
-                    throw new NotSupportedException("File type is not supported.");
+                structure = (IStructure)Activator.CreateInstance(type, file);
             }
-            XmlSerializer xml = new XmlSerializer(structure.GetType());
-            xml.Serialize(File.OpenWrite(String.Format("{0}/{1}.xml", ParsedDirectory, type)), structure);
+            else
+            {
+                throw new NotSupportedException("File type is not supported.");
+            }
+            XmlSerializer xml = new XmlSerializer(type);
+            xml.Serialize(File.OpenWrite(String.Format("{0}/{1}.xml", ParsedDirectory, typeName)), structure);
         }
     }
 }

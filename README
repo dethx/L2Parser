@@ -2,6 +2,11 @@ L2Parser v1.0 by DETH
 ---------------------
 
 L2Parser reads decrypted Lineage II data files and stores them in XML format.
+This program supports only the files of the latest version (Goddess of Destruction).
+
+* Prerequisites:
+.NET 3.5 (for compiling and running).
+l2encdec (for decrypting the data).
 
 * Installation:
 Compile the project, then add l2encdec.exe and it's dependencies to the compiled binary directory.
