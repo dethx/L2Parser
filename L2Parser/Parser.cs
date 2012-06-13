@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
-using L2Parser.Structures;
-using System.Xml.Serialization;
+using System.IO;
 using System.Reflection;
+using L2Parser.Structures;
 
 namespace L2Parser
 {
@@ -29,7 +27,7 @@ namespace L2Parser
             _structures = new Dictionary<string, Type>();
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
             {
-                if (!type.IsInterface && (type.Namespace == "L2Parser.Structures"))
+                if ((type.Name != "BaseStructure") && (type.Namespace == "L2Parser.Structures"))
                 {
                     FieldInfo field = type.GetField("DataFiles", BindingFlags.Public | BindingFlags.Static);
                     if (field != null)
@@ -104,19 +102,17 @@ namespace L2Parser
                 Directory.CreateDirectory(ParsedDirectory);
             }
 
-            IStructure structure;
             Type type;
             string typeName = Path.GetFileNameWithoutExtension(file);
             if (_structures.TryGetValue(typeName.ToLower(), out type))
             {
-                structure = (IStructure)Activator.CreateInstance(type, file);
+                BaseStructure structure = (BaseStructure)Activator.CreateInstance(type, file);
+                File.WriteAllText(String.Format("{0}/{1}.xml", ParsedDirectory, typeName), structure.Output);
             }
             else
             {
                 throw new NotSupportedException("File type is not supported.");
             }
-            XmlSerializer xml = new XmlSerializer(type);
-            xml.Serialize(File.OpenWrite(String.Format("{0}/{1}.xml", ParsedDirectory, typeName)), structure);
         }
     }
 }

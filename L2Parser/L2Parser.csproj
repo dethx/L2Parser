@@ -39,8 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Structures\CommandName.cs" />
+    <Compile Include="Structures\24hzSchema.cs" />
+    <Compile Include="Structures\NpcName.cs" />
     <Compile Include="Structures\SkillName.cs" />
-    <Compile Include="Structures\IStructure.cs" />
+    <Compile Include="Structures\BaseStructure.cs" />
     <Compile Include="IO\L2BinaryReader.cs" />
     <Compile Include="Structures\ItemName.cs" />
     <Compile Include="Parser.cs" />

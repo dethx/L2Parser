@@ -5,47 +5,45 @@ using L2Parser.IO;
 
 namespace L2Parser.Structures
 {
-    public class SkillName : BaseStructure
+    public class NpcName : BaseStructure
     {
-        public static readonly string[] DataFiles = new string[] { "skillname-e" };
+        public static readonly string[] DataFiles = new string[] { "npcname-e" };
 
-        public SkillData[] Data { get; set; }
+        public NpcData[] Data { get; set; }
 
-        public class SkillData
+        public class NpcData
         {
             [XmlAttribute]
             public uint Id { get; set; }
             [XmlAttribute]
-            public uint Level { get; set; }
-            [XmlAttribute]
             public string Name { get; set; }
             public string Description { get; set; }
-            public string AdditionalDescription { get; set; }
-            public string AdditionalDescription2 { get; set; }
+            [XmlAttribute]
+            public byte[] RGB { get; set; }
+            [XmlAttribute]
+            public char Reserved { get; set; }
 
             // do not serialize default values
-            public bool ShouldSerializeAdditionalDescription() { return AdditionalDescription != "none"; }
-            public bool ShouldSerializeAdditionalDescription2() { return AdditionalDescription2 != "none"; }
+            public bool ShouldSerializeReserved() { return Reserved != '\xfffd'; }
         }
 
-        internal SkillName()
+        internal NpcName()
         {
         }
-        public SkillName(string file)
+        public NpcName(string file)
         {
             using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
             {
-                Data = new SkillData[reader.ReadInt32()];
+                Data = new NpcData[reader.ReadInt32()];
                 for (uint i = 0; i < Data.Length; i++)
                 {
-                    SkillData data = new SkillData();
-
+                    NpcData data = new NpcData();
+                    
                     data.Id = reader.ReadUInt32();
-                    data.Level = reader.ReadUInt32();
                     data.Name = reader.ReadString();
                     data.Description = reader.ReadString();
-                    data.AdditionalDescription = reader.ReadString();
-                    data.AdditionalDescription2 = reader.ReadString();
+                    data.RGB = reader.ReadBytes(3);
+                    data.Reserved = reader.ReadChar();
 
                     Data[i] = data;
                 }

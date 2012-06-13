@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace L2Parser
@@ -20,15 +18,16 @@ namespace L2Parser
                     try
                     {
                         string decryptedFile = Parser.DecryptFile(file);
-                        Console.WriteLine("Parsing {0}...", decryptedFile);
+                        Console.Write("Parsing {0}...", decryptedFile);
                         try
                         {
                             Parser.ParseFile(decryptedFile);
                         }
                         catch (NotSupportedException e)
                         {
-                            Console.WriteLine(e.Message);
+                            Console.Write(" {0}", e.Message);
                         }
+                        Console.WriteLine();
                     }
                     catch (FileNotFoundException e)
                     {

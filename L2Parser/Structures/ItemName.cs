@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
 
 namespace L2Parser.Structures
 {
-    public class ItemName : IStructure
+    public class ItemName : BaseStructure
     {
         public static readonly string[] DataFiles = new string[] { "itemname-e" };
 
