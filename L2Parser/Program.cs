@@ -23,6 +23,10 @@ namespace L2Parser
                         {
                             Parser.ParseFile(decryptedFile);
                         }
+                        catch (InvalidDataException e)
+                        {
+                            Console.Write(" {0}", e.Message);
+                        }
                         catch (NotSupportedException e)
                         {
                             Console.Write(" {0}", e.Message);

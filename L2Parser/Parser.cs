@@ -106,8 +106,15 @@ namespace L2Parser
             string typeName = Path.GetFileNameWithoutExtension(file);
             if (_structures.TryGetValue(typeName.ToLower(), out type))
             {
-                BaseStructure structure = (BaseStructure)Activator.CreateInstance(type, file);
-                File.WriteAllText(String.Format("{0}/{1}.xml", ParsedDirectory, typeName), structure.Output);
+                try
+                {
+                    BaseStructure structure = (BaseStructure)Activator.CreateInstance(type, file);
+                    File.WriteAllText(String.Format("{0}/{1}.xml", ParsedDirectory, typeName), structure.Output);
+                }
+                catch (TargetInvocationException e)
+                {
+                    throw e.InnerException;
+                }
             }
             else
             {
