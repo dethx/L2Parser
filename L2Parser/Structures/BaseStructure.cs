@@ -5,6 +5,8 @@ namespace L2Parser.Structures
 {
     public abstract class BaseStructure
     {
+        protected const string ParsingFailed = "Parsing failed. Make sure the structure is right and the file is not corrupted.";
+
         public virtual string Output
         {
             get

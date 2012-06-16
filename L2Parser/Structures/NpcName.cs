@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
@@ -32,27 +33,30 @@ namespace L2Parser.Structures
         }
         public NpcName(string file)
         {
-            using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
+            try
             {
-                Data = new NpcData[reader.ReadInt32()];
-                for (uint i = 0; i < Data.Length; i++)
+                using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
                 {
-                    NpcData data = new NpcData();
-                    
-                    data.Id = reader.ReadUInt32();
-                    data.Name = reader.ReadString();
-                    data.Description = reader.ReadString();
-                    data.RGB = reader.ReadBytes(3);
-                    data.Reserved = reader.ReadChar();
+                    Data = new NpcData[reader.ReadInt32()];
+                    for (uint i = 0; i < Data.Length; i++)
+                    {
+                        NpcData data = new NpcData();
 
-                    Data[i] = data;
-                }
+                        data.Id = reader.ReadUInt32();
+                        data.Name = reader.ReadString();
+                        data.Description = reader.ReadString();
+                        data.RGB = reader.ReadBytes(3);
+                        data.Reserved = reader.ReadChar();
 
-                if (reader.ReadString() != "SafePackage")
-                {
-                    Data = null;
-                    throw new InvalidDataException("Parsing failed.");
+                        Data[i] = data;
+                    }
+                    reader.Validate();
                 }
+            }
+            catch (Exception)
+            {
+                Data = null;
+                throw new InvalidDataException(ParsingFailed);
             }
         }
     }

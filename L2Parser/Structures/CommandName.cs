@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
@@ -26,25 +27,28 @@ namespace L2Parser.Structures
         }
         public CommandName(string file)
         {
-            using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
+            try
             {
-                Data = new CommandData[reader.ReadInt32()];
-                for (uint i = 0; i < Data.Length; i++)
+                using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
                 {
-                    CommandData data = new CommandData();
+                    Data = new CommandData[reader.ReadInt32()];
+                    for (uint i = 0; i < Data.Length; i++)
+                    {
+                        CommandData data = new CommandData();
 
-                    data.Number = reader.ReadUInt32();
-                    data.Id = reader.ReadUInt32();
-                    data.Name = reader.ReadString();
+                        data.Number = reader.ReadUInt32();
+                        data.Id = reader.ReadUInt32();
+                        data.Name = reader.ReadString();
 
-                    Data[i] = data;
+                        Data[i] = data;
+                    }
+                    reader.Validate();
                 }
-
-                if (reader.ReadString() != "SafePackage")
-                {
-                    Data = null;
-                    throw new InvalidDataException("Parsing failed.");
-                }
+            }
+            catch (Exception)
+            {
+                Data = null;
+                throw new InvalidDataException(ParsingFailed);
             }
         }
     }

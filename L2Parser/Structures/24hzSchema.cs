@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
@@ -16,14 +17,17 @@ namespace L2Parser.Structures
         }
         public _24hzSchema(string file)
         {
-            using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
+            try
             {
-                Xml = reader.ReadString();
-
-                if (reader.ReadString() != "SafePackage")
+                using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
                 {
-                    throw new InvalidDataException("Parsing failed.");
+                    Xml = reader.ReadString();
+                    reader.Validate();
                 }
+            }
+            catch (Exception)
+            {
+                throw new InvalidDataException(ParsingFailed);
             }
         }
 

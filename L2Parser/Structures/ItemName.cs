@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
@@ -48,36 +49,39 @@ namespace L2Parser.Structures
         }
         public ItemName(string file)
         {
-            using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
+            try
             {
-                Data = new ItemData[reader.ReadInt32()];
-                for (uint i = 0; i < Data.Length; i++)
+                using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
                 {
-                    ItemData data = new ItemData();
+                    Data = new ItemData[reader.ReadInt32()];
+                    for (uint i = 0; i < Data.Length; i++)
+                    {
+                        ItemData data = new ItemData();
 
-                    data.Id = reader.ReadUInt32();
-                    data.Name = reader.ReadUString();
-                    data.AdditionalName = reader.ReadUString();
-                    data.Description = reader.ReadString();
-                    data.Popup = reader.ReadInt32();
-                    data.Class = reader.ReadTable<uint>(reader.ReadUInt32);
-                    data.SetId1 = reader.ReadArray<string>(reader.ReadString);
-                    data.SetId2 = reader.ReadTable<uint>(reader.ReadUInt32);
-                    data.SetId3 = reader.ReadArray<string>(reader.ReadString);
-                    data.Unknown1 = reader.ReadUInt32();
-                    data.Unknown2 = reader.ReadUInt32();
-                    data.SetEnchantCount = reader.ReadUInt32();
-                    data.SetEnchantEffect = reader.ReadString();
-                    data.Color = reader.ReadUInt32();
+                        data.Id = reader.ReadUInt32();
+                        data.Name = reader.ReadUString();
+                        data.AdditionalName = reader.ReadUString();
+                        data.Description = reader.ReadString();
+                        data.Popup = reader.ReadInt32();
+                        data.Class = reader.ReadTable<uint>(reader.ReadUInt32);
+                        data.SetId1 = reader.ReadArray<string>(reader.ReadString);
+                        data.SetId2 = reader.ReadTable<uint>(reader.ReadUInt32);
+                        data.SetId3 = reader.ReadArray<string>(reader.ReadString);
+                        data.Unknown1 = reader.ReadUInt32();
+                        data.Unknown2 = reader.ReadUInt32();
+                        data.SetEnchantCount = reader.ReadUInt32();
+                        data.SetEnchantEffect = reader.ReadString();
+                        data.Color = reader.ReadUInt32();
 
-                    Data[i] = data;
+                        Data[i] = data;
+                    }
+                    reader.Validate();
                 }
-
-                if (reader.ReadString() != "SafePackage")
-                {
-                    Data = null;
-                    throw new InvalidDataException("Parsing failed.");
-                }
+            }
+            catch (Exception)
+            {
+                Data = null;
+                throw new InvalidDataException(ParsingFailed);
             }
         }
     }

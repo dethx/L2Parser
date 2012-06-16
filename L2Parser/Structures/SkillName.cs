@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 using L2Parser.IO;
@@ -33,28 +34,31 @@ namespace L2Parser.Structures
         }
         public SkillName(string file)
         {
-            using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
+            try
             {
-                Data = new SkillData[reader.ReadInt32()];
-                for (uint i = 0; i < Data.Length; i++)
+                using (L2BinaryReader reader = new L2BinaryReader(File.OpenRead(file)))
                 {
-                    SkillData data = new SkillData();
+                    Data = new SkillData[reader.ReadInt32()];
+                    for (uint i = 0; i < Data.Length; i++)
+                    {
+                        SkillData data = new SkillData();
 
-                    data.Id = reader.ReadUInt32();
-                    data.Level = reader.ReadUInt32();
-                    data.Name = reader.ReadString();
-                    data.Description = reader.ReadString();
-                    data.AdditionalDescription = reader.ReadString();
-                    data.AdditionalDescription2 = reader.ReadString();
+                        data.Id = reader.ReadUInt32();
+                        data.Level = reader.ReadUInt32();
+                        data.Name = reader.ReadString();
+                        data.Description = reader.ReadString();
+                        data.AdditionalDescription = reader.ReadString();
+                        data.AdditionalDescription2 = reader.ReadString();
 
-                    Data[i] = data;
+                        Data[i] = data;
+                    }
+                    reader.Validate();
                 }
-
-                if (reader.ReadString() != "SafePackage")
-                {
-                    Data = null;
-                    throw new InvalidDataException("Parsing failed.");
-                }
+            }
+            catch (Exception)
+            {
+                Data = null;
+                throw new InvalidDataException(ParsingFailed);
             }
         }
     }

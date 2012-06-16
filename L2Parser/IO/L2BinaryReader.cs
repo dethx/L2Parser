@@ -84,5 +84,13 @@ namespace L2Parser.IO
 
             return table;
         }
+
+        public void Validate()
+        {
+            if (ReadString() != "SafePackage")
+            {
+                throw new InvalidDataException();
+            }
+        }
     }
 }
